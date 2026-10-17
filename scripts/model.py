@@ -204,6 +204,23 @@ def predict(race: dict, win: dict, trio: dict, cfg: dict, now: dt.datetime, post
 
     tp = trio_probs(p, m["lambda2"], m["lambda3"])
     tpm = trio_probs(pm, m["lambda2"], m["lambda3"]) if use_market else None
+    real = trio.get("odds") or {}
+    ub = [h["umaban"] for h in horses]
+    keyof = {key: tuple(sorted(ub[x] for x in key)) for key in tp}
+    if real and sum(1 for key in tp if keyof[key] in real) >= 0.8 * len(tp):
+        # 3連複の売れ方（みんなの評価）とも混ぜる。単勝だけから計算した確率は、
+        # 人気のない馬の組み合わせを高く見すぎることがあるため
+        a = m["trio_model_weight"]
+        inv = {key: 1 / real[keyof[key]] for key in tp if keyof[key] in real}
+        lo = min(inv.values())
+        tot = sum(inv.values()) + lo * 0.5 * (len(tp) - len(inv))
+        mix = {key: math.exp(a * math.log(v) + (1 - a) * math.log(inv.get(key, lo * 0.5) / tot))
+               for key, v in tp.items() if v > 0}
+        z_ = sum(mix.values())
+        tp = {key: v / z_ for key, v in mix.items()}
+        tq = {key: inv.get(key, lo * 0.5) / tot for key in tp}
+        if tpm is not None:
+            tpm = tq          # 「みんなの評価」の3着内率も3連複の売れ方から出す
     top3 = [0.0] * n
     for (i, j, k), v in tp.items():
         top3[i] += v
@@ -216,7 +233,6 @@ def predict(race: dict, win: dict, trio: dict, cfg: dict, now: dt.datetime, post
             top3m[j] += v
             top3m[k] += v
 
-    real = trio.get("odds") or {}
     rate = cfg["model"]["trio_return_rate"]
     cands = {"honmei": [], "chuana": [], "oana": []}
     est_count = 0

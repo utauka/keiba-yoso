@@ -21,6 +21,7 @@
     "market_sharpen": 1.1,
     "lambda2": 0.86,
     "lambda3": 0.72,
-    "trio_return_rate": 0.75
+    "trio_return_rate": 0.75,
+    "trio_model_weight": 0.5
   }
 }
