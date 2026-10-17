@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>重賞3連複予想帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* 出馬表のように「日付→レース→買い目→出走馬」の順に縦に積む。上に固定タブ、広い画面では2カラム */
+:root{
+  --bg:#eef2ec; --paper:#ffffff; --ink:#16241a; --sub:#5b6b5f; --line:#d4ddd3; --soft:#e6ece4;
+  --accent:#1f7a46; --accent-ink:#ffffff; --head:#14301f; --head-fg:#eef4ee;
+  --honmei:#2563a8; --chuana:#c98a0b; --oana:#c2364a; --hit:#1d8a52; --gold:#b8860b;
+  --w1:#ffffff; --w1i:#16241a; --w2:#1c1c1c; --w2i:#ffffff; --w3:#d7263d; --w3i:#ffffff; --w4:#1f5fbf; --w4i:#ffffff;
+  --w5:#f2c80f; --w5i:#16241a; --w6:#1f9d55; --w6i:#ffffff; --w7:#f08a24; --w7i:#16241a; --w8:#f29ac0; --w8i:#16241a;
+  --f-display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1712; --paper:#15211a; --ink:#e3ece5; --sub:#93a698; --line:#263a2e; --soft:#1b2b22;
+  --accent:#4cc584; --accent-ink:#06220f; --honmei:#6aa6ec; --chuana:#e8b13d; --oana:#f06b7e; --hit:#4cc584; --gold:#e8c35a;
+  --w2:#3a3a3a; --head:#08110c; --head-fg:#e3ece5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1712; --paper:#15211a; --ink:#e3ece5; --sub:#93a698; --line:#263a2e; --soft:#1b2b22;
+  --accent:#4cc584; --accent-ink:#06220f; --honmei:#6aa6ec; --chuana:#e8b13d; --oana:#f06b7e; --hit:#4cc584; --gold:#e8c35a;
+  --w2:#3a3a3a; --head:#08110c; --head-fg:#e3ece5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--head)}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{background:var(--head);color:var(--head-fg);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding-block:10px 0}
+.brand{font-family:var(--f-display);font-size:20px;letter-spacing:.04em;line-height:1.2;display:flex;align-items:center;gap:10px}
+.brand small{font-family:var(--f-body);font-size:12px;opacity:.7;letter-spacing:0}
+.waku-strip{display:flex;gap:2px}.waku-strip i{width:5px;height:18px;display:block;border-radius:1px}
+nav{display:flex;gap:2px;overflow-x:auto;width:100%;scrollbar-width:none}
+nav button{flex:0 0 auto;background:none;border:0;color:inherit;opacity:.65;font:700 14px var(--f-body);padding:10px 12px 12px;cursor:pointer;border-bottom:3px solid transparent}
+nav button[aria-selected="true"]{opacity:1;border-bottom-color:var(--accent)}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{padding-block:18px 60px}
+h2{font-family:var(--f-display);font-weight:400;font-size:22px;margin:0;line-height:1.3;text-wrap:balance}
+h3{font-size:16px;margin:0;font-weight:700;text-wrap:balance}
+.lede{color:var(--sub);font-size:13.5px;margin:4px 0 0;max-width:68ch}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.label{font-size:11.5px;letter-spacing:.08em;color:var(--sub);font-weight:700}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.chip{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:5px 12px;font:700 13px var(--f-body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip small{font:500 11.5px var(--f-num);opacity:.8;margin-left:4px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{display:flex;flex-direction:column;gap:2px}.stat b{font:700 24px var(--f-num)}.stat span{font-size:12px;color:var(--sub)}
+.stat b.good{color:var(--hit)}.stat b.bad{color:var(--oana)}
+/* 配分 */
+.alloc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.step{border:1px solid var(--line);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.step .k{font-size:12px;font-weight:700}
+.step.honmei .k{color:var(--honmei)}.step.chuana .k{color:var(--chuana)}.step.oana .k{color:var(--oana)}
+.step .ctl{display:flex;align-items:center;gap:6px}
+.step button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:700 18px var(--f-num);cursor:pointer;line-height:1}
+.step button:disabled{opacity:.35;cursor:default}
+.step b{font:700 22px var(--f-num);min-width:1.4em;text-align:center}
+.step small{font-size:11px;color:var(--sub)}
+.sumline{font-size:13px;color:var(--sub)}.sumline b{color:var(--ink);font-family:var(--f-num)}
+/* 枠色の馬番 */
+.u{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:4px;font:700 13px var(--f-num);border:1px solid transparent;flex:0 0 auto}
+.u.w1{background:var(--w1);color:var(--w1i);border-color:#9aa89c}.u.w2{background:var(--w2);color:var(--w2i)}.u.w3{background:var(--w3);color:var(--w3i)}.u.w4{background:var(--w4);color:var(--w4i)}
+.u.w5{background:var(--w5);color:var(--w5i)}.u.w6{background:var(--w6);color:var(--w6i)}.u.w7{background:var(--w7);color:var(--w7i)}.u.w8{background:var(--w8);color:var(--w8i)}
+.u.w0{background:var(--soft);color:var(--ink);border-color:var(--line)}
+.combo{display:inline-flex;gap:3px;align-items:center}
+.kb{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:4px;color:#fff;white-space:nowrap}
+.kb.honmei{background:var(--honmei)}.kb.chuana{background:var(--chuana)}.kb.oana{background:var(--oana)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub);white-space:nowrap}
+.tag.live{border-color:var(--accent);color:var(--accent)}.tag.pad{border-color:var(--gold);color:var(--gold)}
+.tag.fix{background:var(--ink);color:var(--paper);border-color:var(--ink)}.tag.hit{background:var(--hit);border-color:var(--hit);color:#fff}
+.grade{display:inline-block;font:700 12px var(--f-num);padding:1px 7px;border-radius:4px;color:#fff;letter-spacing:.02em}
+.grade.G1{background:#1d4fa8}.grade.G2{background:#c2364a}.grade.G3{background:#1f8a4c}
+/* レースカード */
+.daylabel{font-weight:700;font-size:14px;color:var(--sub);margin:6px 0 -4px}
+.race{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:0}
+.race-h{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:12px 14px 10px;border-bottom:1px solid var(--soft)}
+.race-h .rn{font-family:var(--f-display);font-size:21px;line-height:1.2}
+.race-h .meta{flex:1 1 100%;color:var(--sub);font-size:12.5px;display:flex;flex-wrap:wrap;gap:2px 10px}
+.race-h .time{margin-left:auto;font:700 14px var(--f-num)}
+.status{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--soft);font-size:12.5px;color:var(--sub)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{font-size:11.5px;letter-spacing:.04em;color:var(--sub);font-weight:700;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--soft);white-space:nowrap;vertical-align:middle}
+td.r,th.r{text-align:right}
+.tbl{overflow-x:auto;min-width:0}
+.buy td.nm{white-space:normal;font-size:12px;color:var(--sub);min-width:7em;line-height:1.35}
+.buy tr.won td{background:color-mix(in srgb,var(--hit) 16%,transparent)}
+.buy tr.sep td{border-bottom:0;padding:8px 8px 2px}
+.est{color:var(--sub);font-size:11px}
+.tot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px 14px;border-top:1px solid var(--soft)}
+.tot div{display:flex;flex-direction:column}.tot span{font-size:11.5px;color:var(--sub);font-weight:700}.tot b{font:700 18px var(--f-num)}
+.result{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding:10px 14px;border-top:1px solid var(--soft);font-size:13.5px}
+.result b.good{color:var(--hit)}.result b.bad{color:var(--oana)}
+details.horses{border-top:1px solid var(--soft)}
+details.horses summary{cursor:pointer;font-size:13px;font-weight:700;padding:10px 14px;color:var(--ink)}
+.ent{font-size:13px}
+.ent td{padding:5px 6px}.ent th{padding:5px 6px}
+.ent td.nm{white-space:normal;min-width:7.5em;line-height:1.3}
+.ent td.nm small{display:block;color:var(--sub);font-size:11.5px}
+.ent .mark{font-size:16px;font-weight:700;width:1.4em;text-align:center}
+.ent .mark.m1{color:var(--oana)}.ent .mark.m2{color:var(--honmei)}.ent .mark.m3{color:var(--chuana)}.ent .mark.m5{color:var(--gold)}
+.ent tr.scr td{opacity:.45;text-decoration:line-through}
+.pbar{display:inline-block;height:6px;background:var(--accent);border-radius:2px;vertical-align:middle;margin-right:5px}
+.pad-good{color:var(--hit);font-weight:700}.pad-bad{color:var(--oana);font-weight:700}
+.notes{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
+.notes span{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--sub);white-space:nowrap}
+.note{font-size:12.5px;color:var(--sub);max-width:72ch}
+.empty{padding:28px;text-align:center;color:var(--sub)}
+.how{max-width:72ch}.how h3{margin-top:6px}.how p,.how li{font-size:14px}.how ol,.how ul{padding-left:1.2em;margin:6px 0}
+.warn{border-left:4px solid var(--gold);background:color-mix(in srgb,var(--gold) 8%,var(--paper))}
+.bandbar{display:flex;height:20px;border-radius:4px;overflow:hidden;background:var(--soft)}
+.bandbar span{display:flex;align-items:center;justify-content:center;font:700 11px var(--f-num);color:#fff;white-space:nowrap;overflow:hidden}
+.hist td.nm{white-space:normal;min-width:8em}
+@media (max-width:520px){h2{font-size:19px}.ent .hide-s,.buy .hide-s{display:none}.buy td,.buy th{padding:5px 5px}.grid2{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand"><span class="waku-strip" aria-hidden="true"><i style="background:var(--w1)"></i><i style="background:#555"></i><i style="background:var(--w3)"></i><i style="background:var(--w4)"></i><i style="background:var(--w5)"></i><i style="background:var(--w6)"></i><i style="background:var(--w7)"></i><i style="background:var(--w8)"></i></span>重賞3連複予想帳<small id="asof"></small></div>
+    <nav role="tablist" aria-label="ページ">
+      <button role="tab" aria-selected="true" data-tab="week">今週の重賞</button>
+      <button role="tab" aria-selected="false" data-tab="perf">成績</button>
+      <button role="tab" aria-selected="false" data-tab="how">しくみ</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="p-week" class="stack" role="tabpanel">
+    <div>
+      <h2>今週の重賞（G1〜G3）</h2>
+      <p class="lede">各レース<b>3連複を合計1,000円</b>（100円単位）。<b>本命</b>（30倍未満）・<b>中穴</b>（30〜99倍）・<b>大穴</b>（100倍以上）から、点数を決めて選びます。オッズと馬体重は週末の10分ごとに自動で取りこみ、<b>発走時刻の時点の買い目</b>で確定します。</p>
+    </div>
+    <div class="panel stack" style="gap:10px">
+      <div class="row" style="justify-content:space-between"><span class="label">買い方（1レース1,000円の点数配分）</span><span class="sumline" id="alloc-sum"></span></div>
+      <div class="row" id="presets"></div>
+      <div class="alloc" id="alloc"></div>
+    </div>
+    <div class="stack" id="week-list"></div>
+  </section>
+
+  <section id="p-perf" class="stack" role="tabpanel" hidden>
+    <div>
+      <h2>予想の成績</h2>
+      <p class="lede">終わったレースの答え合わせです。上で選んだ<b>点数配分</b>で買っていたらどうだったかを計算しています（発走時刻の時点の買い目で判定）。</p>
+    </div>
+    <div class="grid3" id="perf-sum"></div>
+    <div class="panel stack" style="gap:8px" id="perf-band"></div>
+    <div class="panel tbl" id="perf-list"></div>
+  </section>
+
+  <section id="p-how" class="stack" role="tabpanel" hidden>
+    <div class="panel how stack" style="gap:8px">
+      <h2>予想のしくみ</h2>
+      <ol>
+        <li><b>みんなの評価</b>：単勝オッズは、たくさんの人がお金を出して決めた「勝ちそうな順番」です。まずこれを土台にします。</li>
+        <li><b>能力指数</b>：直近5走の着順、勝ち馬とのタイム差、レースの格（G1は高く、条件戦は低く）、今回と同じ芝・ダートで近い距離の成績、同じ競馬場の成績、重賞で3着以内に入った回数を合わせて点数にします。初めての芝／ダートや半年以上の休み明けは少し割り引きます。50が平均です。</li>
+        <li><b>パドック指標</b>：発走のおよそ70分前に馬体重が発表されます。前走から±10kg以上の大きな増減は減点、好走したときの体重に近ければ加点。さらにパドックの時間帯（発走75分前から）に単勝が<b>急に売れた馬は加点、急に売れなくなった馬は減点</b>します。パドックを見た人たちの判断がオッズに出るからです。</li>
+        <li><b>勝つ確率</b>：①に②③を少しだけ足して、各馬の勝つ確率を出します（オッズの評価を大きく崩しすぎない作りです）。</li>
+        <li><b>3連複の確率</b>：勝つ確率から「この3頭が3着までに入る確率」を全部の組み合わせで計算します。</li>
+        <li><b>買い目</b>：3連複のオッズで本命・中穴・大穴に分けます。本命は<b>当たりやすい順</b>、中穴は<b>当たりやすさと儲けのバランス</b>、大穴は<b>期待値</b>（確率×オッズ、1より大きいほどお得）の高い順に選びます。</li>
+      </ol>
+      <h3>言葉の意味</h3>
+      <ul>
+        <li><b>的中率</b>：その組み合わせが当たる確率の予想。10点の的中率を足すと「どれか1点が当たる確率」になります。</li>
+        <li><b>期待値</b>：100円買ったら平均でいくら戻りそうか（1.0＝100円）。</li>
+        <li><b>印</b>：◎○▲は勝つ確率の上位3頭、△はその次に3着以内が多そうな馬、☆は人気（6番人気以下）より強いと見た穴馬です。</li>
+        <li><b>推定</b>：3連複がまだ発売前などで取れないときは、単勝から計算した目安のオッズを使い「推定」と表示します。</li>
+      </ul>
+    </div>
+    <div class="panel how warn stack" style="gap:6px">
+      <h3>注意</h3>
+      <ul>
+        <li>パドックの「気配・毛ヅヤ・歩き方」のような見た目の評価は、無料で機械的に取れるデータがないため使っていません。代わりに馬体重とオッズの動きで判断しています。</li>
+        <li>GitHubの混雑で、更新が数分〜十数分遅れることがあります。最終の判断は発走前にご自身でも確認してください。</li>
+        <li>データは netkeiba のページを、少ない回数（1回ごとに1秒以上あけて）だけ読みに行っています。自分用として使い、広く公開しないでください。</li>
+        <li>予想は確率の目安で、儲けを約束するものではありません。馬券は20歳から、無理のない金額で。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script type="application/json" id="data">{"generated":"2026-10-17T23:11+09:00","today":"20261017","cfg":{"budget":1000,"unit":100,"bands":{"_説明":"3連複のオッズで分けます。30倍未満=本命、30〜99.9倍=中穴、100倍以上=大穴","honmei_max":30,"chuana_max":100},"alloc":{"honmei":4,"chuana":3,"oana":3}},"current":[{"race_id":"202605040611","date":"20261017","venue":"東京","rno":11,"name":"富士S","grade":"G2","time":"15:45","surface":"芝","distance":1600,"final":true,"result":{"trio":[{"combo":[10,13,14],"payout":27050}],"top":[13,10,14,8,6]},"settle":{"stake":0,"return":0,"hits":[]}},{"race_id":"202608040711","date":"20261018","venue":"京都","rno":11,"name":"秋華賞","grade":"G1","time":"15:40","surface":"芝","distance":2000,"turn":"右","weather":"晴","going":"良","odds_at":"2026-10-17T23:11+09:00","entries_at":"2026-10-17T23:11+09:00","trio_source":"type=7&action=update","pred":{"ok":true,"generated":"2026-10-17T23:11+09:00","market":true,"win_status":"middle","trio_real":true,"trio_est_count":0,"weights_in":false,"paddock_on":false,"horses":[{"u":1,"w":1,"name":"ギャラボーグ","jockey":"横山和","sexage":"牝3","kinryo":55.0,"odds":29.8,"ninki":8,"p":0.0172,"top3":0.1151,"top3m":0.1279,"ability":51.5,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[2,9,2,1,2],"g_top3":2,"days_off":189,"mark":null},{"u":2,"w":1,"name":"テイエムアイラン","jockey":"富田","sexage":"牝3","kinryo":55.0,"odds":63.0,"ninki":12,"p":0.0065,"top3":0.0535,"top3m":0.0667,"ability":46.5,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[1,1,1,6,2],"g_top3":0,"days_off":71,"mark":null},{"u":3,"w":2,"name":"マスターソアラ","jockey":"武豊","sexage":"牝3","kinryo":55.0,"odds":14.0,"ninki":4,"p":0.0586,"top3":0.2946,"top3m":0.2431,"ability":64.8,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[1,4,1],"g_top3":1,"days_off":42,"mark":"▲"},{"u":4,"w":2,"name":"エンネ","jockey":"坂井","sexage":"牝3","kinryo":55.0,"odds":24.5,"ninki":6,"p":0.0307,"top3":0.1808,"top3m":0.1514,"ability":63.7,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[2,7,2,1],"g_top3":2,"days_off":35,"mark":"☆"},{"u":5,"w":3,"name":"タイセイボーグ","jockey":"西村淳","sexage":"牝3","kinryo":55.0,"odds":68.0,"ninki":14,"p":0.0048,"top3":0.042,"top3m":0.0624,"ability":39.1,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[12,1,3,3,2],"g_top3":4,"days_off":35,"mark":null},{"u":6,"w":3,"name":"ラベルセーヌ","jockey":"荻野極","sexage":"牝3","kinryo":55.0,"odds":11.5,"ninki":3,"p":0.0494,"top3":0.2596,"top3m":0.2858,"ability":51.9,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[1,1,5,1],"g_top3":0,"days_off":71,"mark":"△"},{"u":7,"w":4,"name":"バースデイフライト","jockey":"田山","sexage":"牝3","kinryo":55.0,"odds":150.6,"ninki":16,"p":0.0024,"top3":0.0245,"top3m":0.0312,"ability":45.5,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[4,6,3,2,4],"g_top3":0,"days_off":21,"mark":null},{"u":8,"w":4,"name":"モンローウォーク","jockey":"戸崎圭","sexage":"牝3","kinryo":55.0,"odds":1.5,"ninki":1,"p":0.6245,"top3":0.9177,"top3m":0.8936,"ability":61.7,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[1,1,1,1],"g_top3":1,"days_off":35,"mark":"◎"},{"u":9,"w":5,"name":"スウィートハピネス","jockey":"佐々木","sexage":"牝3","kinryo":55.0,"odds":54.8,"ninki":11,"p":0.0074,"top3":0.0592,"top3m":0.0754,"ability":45.7,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[7,5,13,1,4],"g_top3":0,"days_off":35,"mark":null},{"u":10,"w":5,"name":"ナイスプレーアスク","jockey":"岩田康","sexage":"牝3","kinryo":55.0,"odds":179.1,"ninki":17,"p":0.0016,"top3":0.0182,"top3m":0.0268,"ability":39.2,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[6,1,5,12,7],"g_top3":0,"days_off":42,"mark":null},{"u":11,"w":6,"name":"ガーネットフレア","jockey":"北村友","sexage":"牝3","kinryo":55.0,"odds":36.4,"ninki":10,"p":0.0107,"top3":0.0795,"top3m":0.1076,"ability":43.2,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[1,1,10,7,1],"g_top3":0,"days_off":28,"mark":null},{"u":12,"w":6,"name":"カナルサンマルタン","jockey":"岩田望","sexage":"牝3","kinryo":55.0,"odds":15.9,"ninki":5,"p":0.0414,"top3":0.2273,"top3m":0.2186,"ability":57.8,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[1,1,2],"g_top3":0,"days_off":169,"mark":"△"},{"u":13,"w":7,"name":"ドリームコア","jockey":"ルメール","sexage":"牝3","kinryo":55.0,"odds":8.4,"ninki":2,"p":0.1056,"top3":0.4445,"top3m":0.3667,"ability":65.7,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[3,2,9,1,1],"g_top3":3,"days_off":42,"mark":"○"},{"u":14,"w":7,"name":"サムシングスイート","jockey":"松山","sexage":"牝3","kinryo":55.0,"odds":34.5,"ninki":9,"p":0.0154,"top3":0.1059,"top3m":0.1127,"ability":53.4,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[2,1,4,null,1],"g_top3":1,"days_off":42,"mark":null},{"u":15,"w":8,"name":"フェスティバルヒル","jockey":"浜中","sexage":"牝3","kinryo":55.0,"odds":122.2,"ninki":15,"p":0.0019,"top3":0.0207,"top3m":0.0374,"ability":30.6,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[14,17,1,3,1],"g_top3":2,"days_off":77,"mark":null},{"u":16,"w":8,"name":"ハヤブササキチャン","jockey":"吉田隼","sexage":"牝3","kinryo":55.0,"odds":29.6,"ninki":7,"p":0.017,"top3":0.1141,"top3m":0.1287,"ability":50.9,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[1,1,3,1,2],"g_top3":0,"days_off":42,"mark":null},{"u":17,"w":8,"name":"ロザーンジュ","jockey":"今村","sexage":"牝3","kinryo":55.0,"odds":66.1,"ninki":13,"p":0.0049,"top3":0.0427,"top3m":0.064,"ability":38.8,"pad":0.0,"notes":[],"weight":null,"wdiff":null,"last5":[2,10,4,1,3],"g_top3":0,"days_off":57,"mark":null}],"cands":{"honmei":[{"c":[3,8,13],"p":0.07554,"o":18.7,"ev":1.413,"est":false},{"c":[6,8,13],"p":0.06512,"o":18.7,"ev":1.218,"est":false},{"c":[8,12,13],"p":0.05594,"o":26.4,"ev":1.477,"est":false},{"c":[4,8,13],"p":0.04343,"o":16.3,"ev":0.708,"est":false},{"c":[6,8,12],"p":0.02782,"o":23.5,"ev":0.654,"est":false},{"c":[4,6,8],"p":0.02151,"o":21.7,"ev":0.467,"est":false}],"chuana":[{"c":[3,8,12],"p":0.03238,"o":43.2,"ev":1.399,"est":false},{"c":[8,13,16],"p":0.02665,"o":59.7,"ev":1.591,"est":false},{"c":[3,6,8],"p":0.03777,"o":30.1,"ev":1.137,"est":false},{"c":[8,11,13],"p":0.01838,"o":70.3,"ev":1.292,"est":false},{"c":[1,8,13],"p":0.0269,"o":34.6,"ev":0.931,"est":false},{"c":[8,13,14],"p":0.02467,"o":34.7,"ev":0.856,"est":false},{"c":[3,4,8],"p":0.02505,"o":31.5,"ev":0.789,"est":false},{"c":[8,9,13],"p":0.01362,"o":82.5,"ev":1.124,"est":false},{"c":[1,3,8],"p":0.01543,"o":62.0,"ev":0.957,"est":false},{"c":[8,12,16],"p":0.01119,"o":83.3,"ev":0.932,"est":false}],"oana":[{"c":[3,7,8],"p":0.00319,"o":957.8,"ev":3.054,"est":false},{"c":[3,8,17],"p":0.00557,"o":473.2,"ev":2.637,"est":false},{"c":[7,8,13],"p":0.00565,"o":454.8,"ev":2.567,"est":false},{"c":[8,12,17],"p":0.00406,"o":597.3,"ev":2.426,"est":false},{"c":[8,13,17],"p":0.00982,"o":230.4,"ev":2.262,"est":false},{"c":[7,8,12],"p":0.00232,"o":926.8,"ev":2.148,"est":false},{"c":[6,8,17],"p":0.00477,"o":449.7,"ev":2.143,"est":false},{"c":[2,3,8],"p":0.00699,"o":300.8,"ev":2.104,"est":false},{"c":[3,8,10],"p":0.00237,"o":888.7,"ev":2.103,"est":false},{"c":[2,8,13],"p":0.0123,"o":168.4,"ev":2.071,"est":false}]},"scratched":[]},"picks":[{"c":[3,8,13],"p":0.07554,"o":18.7,"ev":1.413,"est":false,"b":"honmei"},{"c":[6,8,13],"p":0.06512,"o":18.7,"ev":1.218,"est":false,"b":"honmei"},{"c":[8,12,13],"p":0.05594,"o":26.4,"ev":1.477,"est":false,"b":"honmei"},{"c":[4,8,13],"p":0.04343,"o":16.3,"ev":0.708,"est":false,"b":"honmei"},{"c":[3,8,12],"p":0.03238,"o":43.2,"ev":1.399,"est":false,"b":"chuana"},{"c":[8,13,16],"p":0.02665,"o":59.7,"ev":1.591,"est":false,"b":"chuana"},{"c":[3,6,8],"p":0.03777,"o":30.1,"ev":1.137,"est":false,"b":"chuana"},{"c":[3,7,8],"p":0.00319,"o":957.8,"ev":3.054,"est":false,"b":"oana"},{"c":[3,8,17],"p":0.00557,"o":473.2,"ev":2.637,"est":false,"b":"oana"},{"c":[7,8,13],"p":0.00565,"o":454.8,"ev":2.567,"est":false,"b":"oana"}]}],"history":[{"race_id":"202605040611","date":"20261017","venue":"東京","rno":11,"name":"富士S","grade":"G2","time":"15:45","surface":"芝","distance":1600,"final":true,"result":{"trio":[{"combo":[10,13,14],"payout":27050}],"top":[13,10,14,8,6]},"settle":{"stake":0,"return":0,"hits":[]}}]}</script>
+<script>
+const D=JSON.parse(document.getElementById("data").textContent);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const BANDS=[["honmei","本命"],["chuana","中穴"],["oana","大穴"]];
+const BN=Object.fromEntries(BANDS);
+const UNITS=Math.floor(D.cfg.budget/D.cfg.unit);
+const PRESETS=[["本命寄り",{honmei:6,chuana:3,oana:1}],["バランス",{honmei:4,chuana:3,oana:3}],["穴寄り",{honmei:2,chuana:4,oana:4}],["大穴狙い",{honmei:1,chuana:3,oana:6}]];
+let alloc=(()=>{try{const a=JSON.parse(store.get("keiba-alloc")||"null");if(a&&BANDS.every(([b])=>Number.isInteger(a[b])))return a}catch(e){}return {...D.cfg.alloc}})();
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const yen=n=>n.toLocaleString("ja-JP")+"円";
+const pct=(x,d=1)=>(x*100).toFixed(d)+"%";
+const WD="日月火水木金土";
+function dayLabel(d){const t=new Date(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6));return `${+d.slice(4,6)}月${+d.slice(6)}日（${WD[t.getDay()]}）`}
+function hm(iso){return iso?iso.slice(11,16):""}
+function mdhm(iso){return iso?`${+iso.slice(5,7)}/${+iso.slice(8,10)} ${iso.slice(11,16)}`:""}
+
+/* 配分：上から順に選び、1,000円を100円単位で分ける（余りは当たりやすい順に上乗せ） */
+function choose(cands,a){
+  const out=[];BANDS.forEach(([b])=>((cands||{})[b]||[]).slice(0,a[b]||0).forEach(c=>out.push({...c,b})));
+  if(!out.length)return out;
+  const per=Math.floor(UNITS/out.length),rem=UNITS-per*out.length;
+  out.forEach(c=>c.amt=per*D.cfg.unit);
+  [...out].sort((x,y)=>y.p-x.p).slice(0,rem).forEach(c=>c.amt+=D.cfg.unit);
+  return out;
+}
+function total(a){return BANDS.reduce((s,[b])=>s+(a[b]||0),0)}
+
+function renderAlloc(){
+  document.getElementById("presets").innerHTML=PRESETS.map(([n,a],i)=>{const on=BANDS.every(([b])=>a[b]===alloc[b]);
+    return `<button class="chip" type="button" data-p="${i}" aria-pressed="${on}">${n}<small>${a.honmei}-${a.chuana}-${a.oana}</small></button>`}).join("");
+  const t=total(alloc);
+  document.getElementById("alloc").innerHTML=BANDS.map(([b,n])=>`<div class="step ${b}"><span class="k">${n}</span>
+    <div class="ctl"><button type="button" data-b="${b}" data-d="-1" aria-label="${n}を1点へらす" ${alloc[b]<=0?"disabled":""}>−</button><b>${alloc[b]}</b><button type="button" data-b="${b}" data-d="1" aria-label="${n}を1点ふやす" ${t>=UNITS?"disabled":""}>＋</button></div>
+    <small>${b==="honmei"?"30倍未満":b==="chuana"?"30〜99倍":"100倍以上"}</small></div>`).join("");
+  const per=t?Math.floor(UNITS/t)*D.cfg.unit:0;
+  document.getElementById("alloc-sum").innerHTML=t?`<b>${t}</b>点・1点<b>${per}</b>円${UNITS%t?"〜":""}・合計<b>${yen(D.cfg.budget)}</b>`:"0点（買わない）";
+}
+function setAlloc(a){alloc=a;store.set("keiba-alloc",JSON.stringify(a));renderAlloc();renderWeek();renderPerf()}
+document.getElementById("presets").addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(b)setAlloc({...PRESETS[+b.dataset.p][1]})});
+document.getElementById("alloc").addEventListener("click",e=>{const b=e.target.closest("[data-b]");if(!b||b.disabled)return;const a={...alloc};a[b.dataset.b]=Math.max(0,a[b.dataset.b]+ +b.dataset.d);if(total(a)<=UNITS)setAlloc(a)});
+
+function uBox(u,w){return `<span class="u w${w||0}">${u}</span>`}
+function comboHtml(c,wk){return `<span class="combo">${c.map(u=>uBox(u,wk[u])).join("")}</span>`}
+function statusTags(r){
+  const p=r.pred||{},t=[];
+  if(r.result)t.push(`<span class="tag fix">結果確定</span>`);
+  else if(r.final)t.push(`<span class="tag fix">買い目確定（発走時刻）</span>`);
+  else if(p.paddock_on)t.push(`<span class="tag pad">パドック指標を反映中</span>`);
+  else if(p.ok)t.push(`<span class="tag live">予想中</span>`);
+  if(p.ok&&!r.result){
+    t.push(`<span class="tag">${p.weights_in?"馬体重 発表済":"馬体重 発表前"}</span>`);
+    if(!p.trio_real)t.push(`<span class="tag">3連複は推定オッズ</span>`);
+  }
+  const g=p.generated?`更新 ${mdhm(p.generated)}`:"";
+  return t.join("")+(g?`<span>${g}</span>`:"");
+}
+function raceCard(r){
+  const p=r.pred;
+  const head=`<div class="race-h"><span class="grade ${r.grade}">${r.grade||""}</span><span class="rn">${esc(r.name)}</span><span class="time">${r.time||""}発走</span>
+    <div class="meta"><span>${esc(r.venue)}${r.rno}R</span><span>${r.surface||""}${r.distance||""}m${r.turn?`（${r.turn}）`:""}</span>${r.going?`<span>馬場 ${esc(r.going)}</span>`:""}${r.weather?`<span>天候 ${esc(r.weather)}</span>`:""}</div></div>`;
+  if(!p||!p.ok){
+    const rs=r.result?`<div class="result"><span class="label">結果 3連複</span>${r.result.trio.map(t=>`<span class="combo">${t.combo.map(u=>uBox(u,0)).join("")}</span> <b class="num">${yen(t.payout)}</b>`).join("　")}</div>`:"";
+    return `<article class="race">${head}<div class="empty">${r.result?"このレースは予想を作る前に終わりました。":esc(r.pred_note||"出馬表とオッズを待っています。")}</div>${rs}</article>`;
+  }
+  const wk={},nm={};p.horses.forEach(h=>{wk[h.u]=h.w;nm[h.u]=h.name});
+  const picks=choose(p.cands,alloc);
+  const win=new Set((r.result?.trio||[]).map(t=>t.combo.join("-")));
+  let rows="",lastB="";
+  picks.forEach(c=>{
+    if(c.b!==lastB){rows+=`<tr class="sep"><td colspan="6"><span class="kb ${c.b}">${BN[c.b]}</span></td></tr>`;lastB=c.b}
+    const won=win.has([...c.c].sort((a,b)=>a-b).join("-"));
+    rows+=`<tr class="${won?"won":""}"><td>${comboHtml(c.c,wk)}</td><td class="nm">${c.c.map(u=>esc(nm[u]||"")).join("・")}</td>
+      <td class="r num">${c.o>=1000?Math.round(c.o):c.o.toFixed(1)}${c.est?`<span class="est">推定</span>`:""}</td><td class="r num">${pct(c.p)}</td><td class="r num hide-s">${c.ev.toFixed(2)}</td><td class="r num">${c.amt}</td></tr>`;
+  });
+  const hitp=picks.reduce((s,c)=>s+c.p,0),evr=picks.reduce((s,c)=>s+c.amt*c.o*c.p,0)/D.cfg.budget;
+  const stake=picks.reduce((s,c)=>s+c.amt,0);
+  let res="";
+  if(r.result){
+    const tr=r.result.trio.map(t=>`${comboHtml(t.combo,wk)} <b class="num">${yen(t.payout)}</b>`).join("　");
+    const ret=picks.reduce((s,c)=>{const t=r.result.trio.find(t=>t.combo.join("-")===[...c.c].sort((a,b)=>a-b).join("-"));return s+(t?t.payout*c.amt/100:0)},0);
+    res=`<div class="result"><span class="label">結果 3連複</span>${tr}<span style="margin-left:auto">払戻 <b class="num ${ret>=stake?"good":"bad"}">${yen(ret)}</b> / ${yen(stake)}</span></div>`;
+  }
+  const buy=picks.length?`<div class="tbl"><table class="buy"><thead><tr><th>3連複</th><th>馬名</th><th class="r">オッズ</th><th class="r">的中率</th><th class="r hide-s">期待値</th><th class="r">金額</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="tot"><div><span>どれかが当たる確率</span><b>${pct(hitp)}</b></div><div><span>期待回収率</span><b>${(evr*100).toFixed(0)}%</b></div><div><span>合計</span><b>${yen(stake)}</b></div></div>`
+    :`<div class="empty">点数が0点です。上の配分で点数を入れてください。</div>`;
+  const maxp=Math.max(...p.horses.map(h=>h.p));
+  const ms={"◎":"m1","○":"m2","▲":"m3","△":"m4","☆":"m5"};
+  const scr=new Set(p.scratched||[]);
+  const ent=p.horses.map(h=>{
+    const pd=h.pad>0.05?`<span class="pad-good">＋</span>`:h.pad<-0.05?`<span class="pad-bad">−</span>`:"";
+    const wt=h.weight?`${h.weight}<small>(${h.wdiff==null?"?":(h.wdiff>0?"+":"")+h.wdiff})</small>`:"—";
+    const l5=(h.last5||[]).map(x=>x??"×").join("-");
+    return `<tr class="${scr.has(h.u)?"scr":""}"><td class="mark ${ms[h.mark]||""}">${h.mark||""}</td><td>${uBox(h.u,h.w)}</td>
+      <td class="nm">${esc(h.name)}<small>${esc(h.jockey||"")}${l5?`　近走 ${l5}`:""}</small>${h.notes&&h.notes.length?`<div class="notes">${h.notes.map(n=>`<span>${esc(n)}</span>`).join("")}</div>`:""}</td>
+      <td class="r num">${h.odds??"—"}<br><small style="color:var(--sub)">${h.ninki?h.ninki+"人気":""}</small></td>
+      <td class="r num"><span class="pbar" style="width:${Math.round(32*h.p/maxp)}px"></span>${pct(h.p)}</td>
+      <td class="r num hide-s">${pct(h.top3,0)}</td><td class="r num">${h.ability.toFixed(0)}</td><td class="r num hide-s">${wt}</td><td>${pd}</td></tr>`}).join("");
+  return `<article class="race">${head}<div class="status">${statusTags(r)}</div>${buy}${res}
+    <details class="horses" ${r.result?"":"open"}><summary>出走馬の評価（${p.horses.length}頭）</summary><div class="tbl"><table class="ent"><thead><tr><th>印</th><th>番</th><th>馬名・騎手</th><th class="r">単勝</th><th class="r">勝率</th><th class="r hide-s">3着内</th><th class="r">能力</th><th class="r hide-s">馬体重</th><th>パ</th></tr></thead><tbody>${ent}</tbody></table></div>
+    <p class="note" style="padding:0 14px 10px">勝率・3着内＝AIの予想確率／能力＝能力指数（50が平均）／パ＝パドック指標（＋良い・−悪い）</p></details></article>`;
+}
+function renderWeek(){
+  const box=document.getElementById("week-list");
+  if(!D.current.length){box.innerHTML=`<div class="panel empty">今週の重賞はまだ見つかっていません。出馬表が出る金曜の夜から表示されます。</div>`;return}
+  const byDay={};D.current.forEach(r=>(byDay[r.date]=byDay[r.date]||[]).push(r));
+  box.innerHTML=Object.keys(byDay).sort().map(d=>`<div class="daylabel">${dayLabel(d)}</div><div class="grid2">${byDay[d].map(raceCard).join("")}</div>`).join("");
+}
+
+function renderPerf(){
+  const H=D.history.filter(r=>r.pred&&r.pred.cands);
+  const sum=document.getElementById("perf-sum"),band=document.getElementById("perf-band"),list=document.getElementById("perf-list");
+  if(!H.length){sum.innerHTML="";band.innerHTML=`<div class="empty">まだ答え合わせしたレースがありません。重賞が終わると自動で追加されます。</div>`;list.innerHTML="";return}
+  let stake=0,ret=0,hitR=0;const bs={honmei:{n:0,h:0,r:0},chuana:{n:0,h:0,r:0},oana:{n:0,h:0,r:0}};
+  const rows=H.map(r=>{
+    const picks=choose(r.pred.cands,alloc);const win=Object.fromEntries(r.result.trio.map(t=>[t.combo.join("-"),t.payout]));
+    let s=0,g=0,hb=[];picks.forEach(c=>{s+=c.amt;bs[c.b].n++;const k=[...c.c].sort((a,b)=>a-b).join("-");if(win[k]){const v=win[k]*c.amt/100;g+=v;bs[c.b].h++;bs[c.b].r+=v;hb.push(c.b)}});
+    stake+=s;ret+=g;if(g>0)hitR++;
+    return `<tr><td class="num">${+r.date.slice(4,6)}/${+r.date.slice(6)}</td><td><span class="grade ${r.grade}">${r.grade}</span></td><td class="nm">${esc(r.name)}</td>
+      <td>${r.result.trio.map(t=>`<span class="combo">${t.combo.map(u=>uBox(u,0)).join("")}</span>`).join(" ")}</td><td class="r num">${r.result.trio.map(t=>yen(t.payout)).join("/")}</td>
+      <td>${hb.length?hb.map(b=>`<span class="kb ${b}">${BN[b]}</span>`).join(" "):"—"}</td><td class="r num ${g>=s?"pad-good":""}">${yen(g)}</td></tr>`}).join("");
+  const rr=stake?ret/stake:0;
+  sum.innerHTML=`<div class="panel stat"><b class="${rr>=1?"good":"bad"}">${(rr*100).toFixed(0)}%</b><span>回収率</span></div>
+    <div class="panel stat"><b>${hitR}/${H.length}</b><span>当たったレース</span></div>
+    <div class="panel stat"><b>${yen(ret-stake)}</b><span>収支（${yen(stake)}使用）</span></div>`;
+  band.innerHTML=`<h3>本命・中穴・大穴の成績</h3><div class="tbl"><table><thead><tr><th>区分</th><th class="r">買った点数</th><th class="r">当たり</th><th class="r">払戻</th><th class="r">回収率</th></tr></thead><tbody>${
+    BANDS.map(([b,n])=>{const x=bs[b],st=x.n*D.cfg.unit;return `<tr><td><span class="kb ${b}">${n}</span></td><td class="r num">${x.n}</td><td class="r num">${x.h}</td><td class="r num">${yen(Math.round(x.r))}</td><td class="r num">${st?((x.r/st)*100).toFixed(0)+"%":"—"}</td></tr>`}).join("")}</tbody></table></div><p class="note">区分ごとの回収率は「1点100円」として計算した目安です。</p>`;
+  list.innerHTML=`<table class="hist"><thead><tr><th>日付</th><th></th><th>レース</th><th>3連複</th><th class="r">配当</th><th>当たり</th><th class="r">払戻</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function initTabs(){
+  const tabs=[...document.querySelectorAll("nav [role=tab]")];
+  const show=t=>{tabs.forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));["week","perf","how"].forEach(k=>document.getElementById("p-"+k).hidden=k!==t);store.set("keiba-tab",t)};
+  tabs.forEach(b=>b.addEventListener("click",()=>{show(b.dataset.tab);window.scrollTo({top:0})}));
+  const s=store.get("keiba-tab");if(s&&["week","perf","how"].includes(s))show(s);
+}
+document.getElementById("asof").textContent=`${mdhm(D.generated)} 更新`;
+renderAlloc();renderWeek();renderPerf();initTabs();
+</script>
+</body>
+</html>
