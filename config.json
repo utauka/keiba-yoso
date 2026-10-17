@@ -1,0 +1,26 @@
+{
+  "_説明": "数字を変えると予想や買い方が変わります。変えたら保存するだけで、次の更新から反映されます。",
+  "budget": 1000,
+  "unit": 100,
+  "grades": ["G1", "G2", "G3"],
+  "bands": {
+    "_説明": "3連複のオッズで分けます。30倍未満=本命、30〜99.9倍=中穴、100倍以上=大穴",
+    "honmei_max": 30,
+    "chuana_max": 100
+  },
+  "picks": {
+    "_説明": "default_alloc は記録（成績）に使う初期の点数。画面ではいつでも変えられます",
+    "default_alloc": {"honmei": 4, "chuana": 3, "oana": 3},
+    "candidates_per_band": 10,
+    "min_prob": {"chuana": 0.003, "oana": 0.0015}
+  },
+  "model": {
+    "_説明": "ability_weight を大きくすると、オッズより能力指数を重く見ます",
+    "ability_weight": 0.30,
+    "ability_weight_no_market": 1.0,
+    "market_sharpen": 1.1,
+    "lambda2": 0.86,
+    "lambda3": 0.72,
+    "trio_return_rate": 0.75
+  }
+}

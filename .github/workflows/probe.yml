@@ -1,9 +1,6 @@
 # 動作確認用（手動または scripts/probe.py を直したときだけ動く）
 name: probe
 on:
-  push:
-    branches: [main]
-    paths: ["scripts/probe.py", ".github/workflows/probe.yml"]
   workflow_dispatch:
 permissions:
   contents: write

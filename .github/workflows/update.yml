@@ -1,0 +1,72 @@
+# 週末の自動更新：重賞さがし → 出馬表・馬体重 → オッズ → 予想と買い目 → 結果の答え合わせ → サイト公開
+name: update
+
+on:
+  schedule:
+    - cron: "*/10 0-8 * * 6,0,1"   # 土・日・月 9:00〜17:50（日本時間）10分ごと。月曜は開催がなければすぐ終わる
+    - cron: "0 11 * * 5,6,0"       # 金・土・日 20:00（日本時間）翌日の準備
+  push:                             # 仕組みや画面を直したときも動く
+    branches: [main]
+    paths: ["scripts/**", "site/template.html", "config.json", ".github/workflows/update.yml"]
+  workflow_dispatch:                # 「Run workflow」ボタンで手動でも動く
+    inputs:
+      prep:
+        description: "前日の準備として動かす（重賞さがし・出馬表・過去成績を取り直す）"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: site-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: 取りこみと予想
+        id: run
+        run: |
+          if [ "${{ github.event.schedule }}" = "0 11 * * 5,6,0" ] || [ "${{ inputs.prep }}" = "true" ] || [ "${{ github.event_name }}" = "push" ]; then
+            python scripts/update.py --prep
+          else
+            python scripts/update.py
+          fi
+
+      - name: 変更を保存
+        id: save
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add data site
+          if git commit -m "更新 $(TZ=Asia/Tokyo date '+%F %H:%M')"; then
+            git pull --rebase
+            git push
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "変更なし"
+            echo "deploy=${{ github.event_name != 'schedule' }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/configure-pages@v5
+        if: steps.save.outputs.deploy == 'true'
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.save.outputs.deploy == 'true'
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        if: steps.save.outputs.deploy == 'true'
